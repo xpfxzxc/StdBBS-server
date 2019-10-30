@@ -6,6 +6,7 @@ import * as path from 'path';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './modules/auth/auth.module';
 import { validatorProviders } from './common/decorators/validators';
 import { CheckController } from './controllers/generic/check.controller';
 import { UsersModule } from './modules/users/users.module';
@@ -15,6 +16,7 @@ const ENV = process.env.NODE_ENV && process.env.NODE_ENV.trim();
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.load(path.join(__dirname, 'config/**/!(*.d).{ts,js}'), {
       path: path.join(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
     }),

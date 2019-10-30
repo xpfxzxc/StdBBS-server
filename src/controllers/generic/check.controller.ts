@@ -1,4 +1,5 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Req } from '@nestjs/common';
+import { Request } from 'express';
 
 import { CheckIfCaptchaIsRightDto } from './dto/check-if-captcha-is-right.dto';
 import { CheckIfEmailIsAvailableDto } from './dto/check-if-email-is-available.dto';
@@ -34,6 +35,15 @@ export class CheckController {
       this.captchaService.verify(captcha)
         ? { code: 0 }
         : { code: 102, message: '该验证码不正确' },
+    );
+  }
+
+  @Get('login')
+  async checkIfUserIsLoggedIn(@Req() req: Request) {
+    return new JsonResponse(
+      req.isAuthenticated()
+        ? { code: 0, data: { user: req.user } }
+        : { code: 103, message: '未登录' },
     );
   }
 }

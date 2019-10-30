@@ -4,10 +4,13 @@ import { useContainer } from 'class-validator';
 import * as RedisStore from 'connect-redis';
 import * as csurf from 'csurf';
 import * as session from 'express-session';
+import * as passport from 'passport';
 
 import { AppModule } from './app.module';
 import { AppService } from './app.service';
 import { BadRequestExceptionFilter } from './common/filters/bad-request-exception.filter';
+import { ForbiddenExceptionFilter } from './common/filters/forbidden-exception.filter';
+import { UnauthorizedExceptionFilter } from './common/filters/unauthorized-exception.filter';
 import { AddTimestampInterceptor } from './common/interceptors/add-timestamp.interceptor';
 
 async function bootstrap() {
@@ -37,6 +40,9 @@ async function bootstrap() {
     throw new BadRequestException();
   });
 
+  app.use(passport.initialize());
+  app.use(passport.session());
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -46,6 +52,8 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new BadRequestExceptionFilter());
+  app.useGlobalFilters(new ForbiddenExceptionFilter());
+  app.useGlobalFilters(new UnauthorizedExceptionFilter());
 
   app.useGlobalInterceptors(new AddTimestampInterceptor());
 
