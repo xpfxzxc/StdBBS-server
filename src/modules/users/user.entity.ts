@@ -14,15 +14,21 @@ export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: false })
   name: string;
 
-  @Column()
+  @Column({ nullable: false })
   @Index()
   email: string;
 
-  @Column()
+  @Column({ nullable: false })
   password: string;
+
+  @Column({ nullable: true })
+  avatar: string;
+
+  @Column({ default: '无' })
+  introduction: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Number;
