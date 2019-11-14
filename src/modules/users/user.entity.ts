@@ -1,13 +1,16 @@
 import * as bcrypt from 'bcryptjs';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  BeforeInsert,
 } from 'typeorm';
+
+import { TopicEntity } from '../topics/topic.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity {
@@ -29,6 +32,9 @@ export class UserEntity {
 
   @Column({ default: '无' })
   introduction: string;
+
+  @OneToMany(type => TopicEntity, topic => topic.user)
+  topics: TopicEntity[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Number;

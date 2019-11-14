@@ -29,11 +29,11 @@ export class UsersService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async findOneUserByEmail(email: string): Promise<UserEntity> {
+  async findByEmail(email: string): Promise<UserEntity> {
     return this.userRepository.findOne({ email });
   }
 
-  async findOneUserById(id: number): Promise<UserEntity> {
+  async findById(id: number): Promise<UserEntity> {
     return this.userRepository.findOne(id);
   }
 
