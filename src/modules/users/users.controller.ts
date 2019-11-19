@@ -15,20 +15,24 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
 
 import { AddUserDto } from './dto/add-user.dto';
+import { SendUserNotificationsDto } from './dto/send-user-notification.dto';
+import { SendUserRepliesDto } from './dto/send-user-replies.dto';
 import { SendUserTopicsDto } from './dto/send-user-topics.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserUpdateGuard } from './guards/user-update.guard';
 import { UsersService } from './users.service';
 import { AuthenticatedGuard } from '../auth/authenticated.guard';
 import { NotAuthenticatedGuard } from '../auth/not-authenticated.guard';
+import { NotificationsService } from '../notifications/notifications.service';
+import { RepliesService } from '../replies/replies.service';
 import { TopicsService } from '../topics/topics.service';
 import { imageFileFilter } from '../../common/file-filters/image-file-filter';
 import { CaptchaGuard } from '../../common/guards/captcha.guard';
 import { JsonResponse } from '../../common/modals/json-response.modal';
 import { ImageService } from '../../services/image.service';
-import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -41,9 +45,38 @@ export class UsersController {
 
   constructor(
     private readonly imageService: ImageService,
+    private readonly notificationService: NotificationsService,
+    private readonly replyService: RepliesService,
     private readonly topicService: TopicsService,
     private readonly userService: UsersService,
   ) {}
+
+  @Get(':id/notifications')
+  async sendUserNotifications(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() { page = 1 }: SendUserNotificationsDto,
+  ) {
+    if (!(await this.userService.findById(id))) {
+      throw new NotFoundException();
+    }
+
+    const userNotifications = await this.notificationService.findAllByUserId(
+      id,
+      {
+        page,
+        limit: 10,
+      },
+    );
+
+    this.userService.maskAsRead(id);
+
+    return new JsonResponse({
+      code: 0,
+      data: {
+        userNotifications,
+      },
+    });
+  }
 
   @Get(':id/topics')
   async sendUserTopics(
@@ -62,6 +95,28 @@ export class UsersController {
       code: 0,
       data: {
         userTopics,
+      },
+    });
+  }
+
+  @Get(':id/replies')
+  @UseGuards(AuthenticatedGuard)
+  async sendUserReplies(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() { page = 1 }: SendUserRepliesDto,
+  ) {
+    if (!(await this.userService.findById(id))) {
+      throw new NotFoundException();
+    }
+
+    const userReplies = await this.replyService.findAllByUserId(id, {
+      page,
+      limit: 5,
+    });
+    return new JsonResponse({
+      code: 0,
+      data: {
+        userReplies,
       },
     });
   }

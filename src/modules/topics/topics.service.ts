@@ -54,7 +54,6 @@ export class TopicsService {
     userId: number,
     options: IPaginationOptions,
   ): Promise<Pagination<TopicEntity>> {
-    const qb = this.topicRepository.createQueryBuilder();
     return paginate<TopicEntity>(this.topicRepository, options, {
       where: {
         user: {

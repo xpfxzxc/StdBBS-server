@@ -5,11 +5,13 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { CategoryEntity } from '../categories/category.entity';
+import { ReplyEntity } from '../replies/reply.entity';
 import { UserEntity } from '../users/user.entity';
 
 @Entity({ name: 'topic' })
@@ -64,6 +66,9 @@ export class TopicEntity {
 
   @Column({ default: 0, comment: '可用来做排序使用' })
   order: number;
+
+  @OneToMany(type => ReplyEntity, reply => reply.topic)
+  replies: ReplyEntity[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   @Index()

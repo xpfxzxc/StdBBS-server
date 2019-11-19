@@ -37,6 +37,10 @@ export class UsersService {
     return this.userRepository.findOne(id);
   }
 
+  async maskAsRead(id: number): Promise<void> {
+    await this.userRepository.update(id, { notificationCount: 0 });
+  }
+
   async update(
     user: UserEntity,
     updateUserDto: UpdateUserDto,

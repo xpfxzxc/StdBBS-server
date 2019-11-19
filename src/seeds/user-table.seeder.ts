@@ -23,6 +23,6 @@ export class UserTableSeeder1572750942849 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<any> {
-    await truncateTable(queryRunner, 'user', 'topic');
+    await truncateTable(queryRunner, 'user', 'topic', 'reply');
   }
 }

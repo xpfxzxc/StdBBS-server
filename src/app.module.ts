@@ -11,6 +11,8 @@ import { CheckController } from './controllers/generic/check.controller';
 import { UploadsController } from './controllers/uploads.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { RepliesModule } from './modules/replies/replies.module';
 import { TopicsModule } from './modules/topics/topics.module';
 import { UsersModule } from './modules/users/users.module';
 import { CaptchaService } from './services/captcha.service';
@@ -27,10 +29,12 @@ const ENV = process.env.NODE_ENV && process.env.NODE_ENV.trim();
     ConfigModule.load(path.join(__dirname, 'config/**/!(*.d).{ts,js}'), {
       path: path.join(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
     }),
+    NotificationsModule,
     RedisModule.forRootAsync({
       useFactory: (config: ConfigService) => ConfigService.get('redis'),
       inject: [ConfigService],
     }),
+    RepliesModule,
     TopicsModule,
     TypeOrmModule.forRootAsync({
       useFactory: (config: ConfigService) => config.get('database'),

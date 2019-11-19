@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { ReplyEntity } from '../replies/reply.entity';
 import { TopicEntity } from '../topics/topic.entity';
 
 @Entity({ name: 'user' })
@@ -36,6 +37,12 @@ export class UserEntity {
   @OneToMany(type => TopicEntity, topic => topic.user)
   topics: TopicEntity[];
 
+  @OneToMany(type => ReplyEntity, reply => reply.user)
+  replies: ReplyEntity[];
+
+  @Column({ name: 'notification_count', default: 0 })
+  notificationCount: number;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Number;
 
@@ -45,5 +52,9 @@ export class UserEntity {
   @BeforeInsert()
   async beforeInsert() {
     this.password = await bcrypt.hash(this.password, 10);
+  }
+
+  isAuthorOf(entity: TopicEntity | ReplyEntity): boolean {
+    return this.id === entity.user.id;
   }
 }

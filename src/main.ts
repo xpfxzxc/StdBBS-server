@@ -17,6 +17,9 @@ import { ForbiddenExceptionFilter } from './common/filters/forbidden-exception.f
 import { UnauthorizedExceptionFilter } from './common/filters/unauthorized-exception.filter';
 import { NotFoundExceptionFilter } from './common/filters/not-found-exception.filter';
 import { AddTimestampInterceptor } from './common/interceptors/add-timestamp.interceptor';
+import { SessionIoAdapter } from './session-io.adapter';
+
+export let sessionMiddleware;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -34,7 +37,11 @@ async function bootstrap() {
     client: redisClient,
     ...configService.get('redis-store'),
   });
-  app.use(session(sessionConfig));
+
+  sessionMiddleware = session(sessionConfig);
+  app.use(sessionMiddleware);
+
+  app.useWebSocketAdapter(new SessionIoAdapter(app));
 
   app.use(csurf(configService.get('csurf')));
   app.use(function(err, req, res, next) {

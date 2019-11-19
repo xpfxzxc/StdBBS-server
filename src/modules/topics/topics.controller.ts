@@ -19,6 +19,7 @@ import { UpdateTopicDto } from './dto/update-topic.dto';
 import { TopicEntity } from './topic.entity';
 import { TopicsService } from './topics.service';
 import { AuthenticatedGuard } from '../auth/authenticated.guard';
+import { RepliesService } from '../replies/replies.service';
 import { UserEntity } from '../users/user.entity';
 import { User } from '../../common/decorators/user.decorator';
 import { JsonResponse } from '../../common/modals/json-response.modal';
@@ -35,6 +36,11 @@ export class TopicsController {
     });
   }
 
+  constructor(
+    private readonly replyService: RepliesService,
+    private readonly topicService: TopicsService,
+  ) {}
+
   @Delete(':id')
   @UseGuards(AuthenticatedGuard)
   async delete(
@@ -43,15 +49,13 @@ export class TopicsController {
   ) {
     const topic = await this.getTopicOrFail(id);
 
-    if (!this.isAuthorOf(topic, user)) {
+    if (!user.isAuthorOf(topic)) {
       throw new ForbiddenException();
     }
 
     await this.topicService.delete(topic);
     return new JsonResponse({ code: 0 });
   }
-
-  constructor(private readonly topicService: TopicsService) {}
 
   @Get()
   async index(@Query() { page = 1, categoryId, order }: IndexTopicDto) {
@@ -63,6 +67,21 @@ export class TopicsController {
       code: 0,
       data: {
         topics,
+      },
+    });
+  }
+
+  @Get(':id/replies')
+  async sendTopicReplies(@Param('id', ParseIntPipe) id: number) {
+    if (!(await this.topicService.findById(id))) {
+      throw new NotFoundException();
+    }
+
+    const topicReplies = await this.replyService.findAllByTopicId(id);
+    return new JsonResponse({
+      code: 0,
+      data: {
+        topicReplies,
       },
     });
   }
@@ -82,7 +101,7 @@ export class TopicsController {
   ) {
     const topic = await this.getTopicOrFail(id);
 
-    if (!this.isAuthorOf(topic, user)) {
+    if (!user.isAuthorOf(topic)) {
       throw new ForbiddenException();
     }
 
@@ -98,9 +117,5 @@ export class TopicsController {
     }
 
     return topic;
-  }
-
-  private isAuthorOf(topic: TopicEntity, user: UserEntity) {
-    return topic.user.id === user.id;
   }
 }

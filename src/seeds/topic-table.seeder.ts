@@ -1,6 +1,7 @@
 import * as faker from 'faker';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+import { truncateTable } from './helper';
 import { CategoryEntity } from '../modules/categories/category.entity';
 import { UserEntity } from '../modules/users/user.entity';
 import { TopicEntity } from '../modules/topics/topic.entity';
@@ -28,6 +29,6 @@ export class TopicTableSeeder1572757732757 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<any> {
-    await queryRunner.clearTable('topic');
+    await truncateTable(queryRunner, 'topic', 'reply');
   }
 }
